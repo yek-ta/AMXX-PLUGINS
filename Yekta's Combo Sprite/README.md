@@ -16,6 +16,7 @@ When you kill enemy, plugin shows sprite about your kill on screen. These:
 
 # Komutlar
 say /combosprite - Combo Sprite gösterimini açıp kapatmaya yarar.
+<br>
 say /combosprite - Player can on/off of plugin.
 
 # [YouTube](https://www.youtube.com/watch?v=VszCeoLOvz4)
