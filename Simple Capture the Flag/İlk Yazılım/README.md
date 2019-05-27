@@ -1,1 +1,1 @@
-SCTF yi ilk yazdığımda sadece CSDurağı sunucuları için olacaktı. Hâli ile Türkçe yazdım. Fakat gittikçe güzelleşince eklentiyi İngilizce diline çevirip paylaştım. Bu dosyalar da SCTF nin ilk sürümünün Türkçe yazılmış hali. 
+SCTF yi ilk yazdığımda sadece CSDurağı sunucuları için olacaktı. Hâli ile Türkçe yazdım. Fakat gittikçe güzelleşince eklentiyi İngilizce diline çevirip paylaştım. Bu dosyalar da SCTF nin ilk sürümünün Türkçe yazılmış hâli. 
