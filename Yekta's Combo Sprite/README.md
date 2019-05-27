@@ -1,4 +1,5 @@
 Düşmanı öldürdüğünde, eklenti ekranda öldürmenle ilgili sprite gösterir. Bunlar:
+<br>
 When you kill enemy, plugin shows sprite about your kill on screen. These:
 
 - HS Kill
