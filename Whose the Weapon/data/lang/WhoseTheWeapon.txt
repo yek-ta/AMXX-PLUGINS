@@ -1,0 +1,15 @@
+[en]
+WHOM = ^1You picked up the weapon ^4%s ^1of player ^3%s
+WHOY = ^1You picked up the weapon ^4%s ^1of ^3your own
+
+[tr]
+WHOM = ^1Aldigin ^4%s ^1silahi ^3%s ^1oyuncusunun
+WHOY = ^1Aldigin ^4%s ^1silahi ^3senin
+
+[ru]
+WHOM = ^1Вы подобрали оружие ^4%s ^1игрока ^3%s
+WHOY = ^1Вы подобрали ^3свое ^1оружие ^4%s
+
+[de]
+WHOM = ^1Die ^4%s ^1gehoerte ^3%s
+WHOY = ^1Die ^4%s ^1gehoerte ^3Dir
