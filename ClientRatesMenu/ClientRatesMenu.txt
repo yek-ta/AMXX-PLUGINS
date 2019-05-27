@@ -1,0 +1,13 @@
+﻿[en]
+MENU_TITLE = [ \rClient Rates Menu \y]^n\wYour Current Rates;
+YOUR_RATES = Your First Rates
+CLOSE_MENU = Close Menu
+MENU_WAS_CLOSED = Menu was closed. If you won't be satisfied about rates, you can again change from !g/rates !ymenu.
+LEAVE_BEST_RATE = Leave the best rates.
+
+[tr]
+MENU_TITLE = [ \rRate Ayarlama \y]^n\wSuanki Rate Ayarlariniz;
+YOUR_RATES = Ilk Rate Ayarlariniz
+CLOSE_MENU = Menuyu Kapat
+MENU_WAS_CLOSED = Rate menusu kapatildi. Ayarlardan memnun kalmaz iseniz !g/rates !yile tekrar ayarlayabilirsiniz.
+LEAVE_BEST_RATE = En iyi rate ayarinda birakiniz.
