@@ -17,3 +17,6 @@ Jailbreak için geliştirdiğim bir eklentidir. Amacı ekstra satın alınan öz
 - Gardiyan | Plazma Silahı
 - Gardiyan | Salamander Silahı
 
+- # [YouTube](https://www.youtube.com/watch?v=Q1qbSC-Oe_k)
+- Gardiyan | GE : SF1
+
