@@ -1,64 +1,52 @@
 /*
 
-Herhangi biri düşmanı öldürdüğünde, sağ üstte yazar. Ancak sadece öldürme bilgilerinizi görmek istiyorsanız ve başkalarının da öldürme bilgilerini görmek istemiyorsanız, bu eklentiyi kullanabilirsiniz.
+    https://dev-cs.ru/resources/771/
+    Yek'-ta
+    Mistrick
 
-When someone kills enemy, it writes on top right. But if you want to see just your killing information and you don't want to see others killing information, you can use this plugin.
+    When someone kills enemy, it writes on top right. But if you want to see just your killing information and you don't want to see others killing information, you can use this plugin.
 
-Когда кто-то убивает врага, пишет вверху справа. Но если вы хотите видеть только свою информацию об убийстве и не хотите видеть информацию об убийстве других людей, вы можете использовать этот плагин.
+    Когда кто-то убивает врага, пишет вверху справа. Но если вы хотите видеть только свою информацию об убийстве и не хотите видеть информацию об убийстве других людей, вы можете использовать этот плагин.
 
-
+    Herhangi biri düşmanı öldürdüğünde, sağ üstte yazar. Ancak sadece öldürme bilgilerinizi görmek istiyorsanız ve başkalarının da öldürme bilgilerini görmek istemiyorsanız, bu eklentiyi kullanabilirsiniz.
 */
 
 #include <amxmodx>
 
 #define PLUGIN  "Only Your Info on DM"
-#define VERSION "1.1"
-#define AUTHOR  "Yek'-ta"
+#define VERSION "1.3"
+#define AUTHOR  "Dev-cs.ru"
 
-new msgID_deathMsg, msgID_sayText
 public plugin_init()
 {
     register_plugin(PLUGIN, VERSION, AUTHOR)
-
-    msgID_sayText = get_user_msgid("SayText")
-    msgID_deathMsg = get_user_msgid("DeathMsg")
-    register_message(msgID_deathMsg, "msg_deathMsg")
-
-    register_event("DeathMsg", "player_die", "ae")
+    register_message(get_user_msgid("DeathMsg"), "msg_deathMsg")
 }
-public msg_deathMsg()
-    return PLUGIN_HANDLED;
-
-public player_die()
+public msg_deathMsg(msgid, dest, receiver)
 {
-    new iVictim = read_data(2)
-    new iKiller = read_data(1)
-    new iHS = read_data(3)
-    new szWeapon[24]
-    read_data(4, szWeapon, 23)
-    set_msg_block(msgID_sayText, BLOCK_ONCE)
+    enum { arg_killer = 1, arg_victim, arg_headshot, arg_weapon_name };
 
+    new killer = get_msg_arg_int(arg_killer);
+    new victim = get_msg_arg_int(arg_victim);
+    new headshot = get_msg_arg_int(arg_headshot);
+    new weapon_name[64];
+    get_msg_arg_string(arg_weapon_name, weapon_name, charsmax(weapon_name));
 
-    do_deathmsg(iKiller, iVictim, iHS, szWeapon)
-}
-
-stock do_deathmsg(iKiller, iVictim, iHS, const szWeapon[])
-{
-    if(is_user_connected(iKiller) && is_user_connected(iVictim)){
-        message_begin(MSG_ONE, msgID_deathMsg, _, iKiller);
-        write_byte(iKiller)
-        write_byte(iVictim)
-        write_byte(iHS)
-        write_string(szWeapon)
-        message_end()
-
-        if(!is_user_bot(iVictim)){
-            message_begin(MSG_ONE, msgID_deathMsg, _, iVictim);
-            write_byte(iKiller)
-            write_byte(iVictim)
-            write_byte(iHS)
-            write_string(szWeapon)
-            message_end()
-        }
+    if(killer) {
+        send_deathmsg(msgid, MSG_ONE, killer, killer, victim, headshot, weapon_name);
     }
+    if(victim != killer) {
+        send_deathmsg(msgid, MSG_ONE, victim, killer, victim, headshot, weapon_name);
+    }
+    return PLUGIN_HANDLED;
+}
+
+stock send_deathmsg(msgid, dest, receiver, killer, victim, headshot, weapon_name[])
+{
+    message_begin(dest, msgid, _, receiver);
+    write_byte(killer);
+    write_byte(victim);
+    write_byte(headshot);
+    write_string(weapon_name);
+    message_end();
 }
