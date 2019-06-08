@@ -2,15 +2,15 @@
 
 https://forum.csduragi.com/eklentiler-pluginler/yektas-combo-sprite-t35501.html
 https://dev-cs.ru/resources/720/
+https://github.com/yek-ta/AMXX-PLUGINS/tree/master/Yekta's%20Combo%20Sprite
 
 */
 
 #include <amxmodx>
 #include <reapi>
-#include <fakemeta>
 
 #define PLUGIN "Yekta's Combo Sprite"
-#define VERSION "3.0"
+#define VERSION "3.2"
 #define AUTHOR "Yek'-ta"
 
 #define SHOWTIME 1.5  //it should be float
@@ -18,8 +18,6 @@ https://dev-cs.ru/resources/720/
 #define HUD_HIDE_FLASH (1<<1)
 #define HUD_HIDE_CROSS (1<<6)
 #define HUD_DRAW_CROSS (1<<7)
-
-new g_msgHideWeapon,iMsgCrosshair;
 
 #define CSW_SHIELD  2
 new isitON[33]
@@ -30,25 +28,23 @@ enum _:MESSAGES {
     g_iMsg_WeaponList,
     g_iMsg_ScreenFade,
     g_iMsg_CurWeapon,
-    g_iMsg_ForceCam,
     g_iMsg_SetFOV,
-    g_iMsg_HideWeapon
+    g_iMsg_HideWeapon,
+    g_iMsg_Crosshair
 }
 new g_Messages[MESSAGES];
 new g_Messages_Name[MESSAGES][] = {
     "WeaponList",
     "ScreenFade",
     "CurWeapon",
-    "ForceCam",
     "SetFOV",
-    "HideWeapon"
+    "HideWeapon",
+    "Crosshair"
 }
 
 public plugin_init(){
 
     register_plugin(PLUGIN, VERSION, AUTHOR)
-    iMsgCrosshair = get_user_msgid("Crosshair");
-    g_msgHideWeapon = get_user_msgid("HideWeapon");
     for(new i; i < sizeof g_Messages; i++){
         g_Messages[i] = get_user_msgid(g_Messages_Name[i]);
     }
@@ -196,18 +192,18 @@ public comboHudGoster(id){
 }
 stock Hide_NormalCrosshair(id, flag){
     if(flag == 1){
-        message_begin(MSG_ONE, g_msgHideWeapon, _, id);
+        message_begin(MSG_ONE, g_Messages[g_iMsg_HideWeapon], _, id);
         write_byte(HUD_HIDE_CROSS | HUD_HIDE_FLASH);
         message_end();
     }
     else{
-        message_begin(MSG_ONE, g_msgHideWeapon, _, id);
+        message_begin(MSG_ONE, g_Messages[g_iMsg_HideWeapon], _, id);
         write_byte(HUD_DRAW_CROSS | HUD_HIDE_FLASH);
         message_end();
     }
 }
 stock show_crosshair(id, flag){
-    message_begin(MSG_ONE_UNRELIABLE, iMsgCrosshair, _, id);
+    message_begin(MSG_ONE_UNRELIABLE, g_Messages[g_iMsg_Crosshair], _, id);
     write_byte(flag);
     message_end();
 }
@@ -219,8 +215,8 @@ stock Msg_CurWeapon(id, IsActive,WeaponID,ClipAmmo){
 
     message_end();
 }
-stock Msg_WeaponList(id, const WeaponName[],PrimaryAmmoID,PrimaryAmmoMaxAmount,SecondaryAmmoID,SecondaryAmmoMaxAmount,
-SlotID,NumberInSlot,WeaponID,Flags){
+stock Msg_WeaponList(id, const WeaponName[],PrimaryAmmoID,PrimaryAmmoMaxAmount,SecondaryAmmoID,
+SecondaryAmmoMaxAmount,SlotID,NumberInSlot,WeaponID,Flags){
     message_begin(MSG_ONE,g_Messages[g_iMsg_WeaponList], {0,0,0}, id);
     write_string(WeaponName);
     write_byte(PrimaryAmmoID);
@@ -237,11 +233,5 @@ SlotID,NumberInSlot,WeaponID,Flags){
 stock Msg_SetFOV(id, Degrees){
     message_begin(MSG_ONE,g_Messages[g_iMsg_SetFOV], {0,0,0}, id);
     write_byte(Degrees);
-    message_end();
-}
-
-stock Msg_HideWeapon(id, Flags){
-    message_begin(MSG_ONE,g_Messages[g_iMsg_HideWeapon], {0,0,0}, id);
-    write_byte(Flags);
     message_end();
 }
