@@ -8,7 +8,7 @@ new Msg_ScreenFade;
 #define TRANSPARAN 15
 public plugin_init()
 {
-    register_plugin("SCTF Flagger ScreenFade", "1.1", "Yek'-ta")
+    register_plugin("SCTF Flagger ScreenFade", "1.2", "Yek'-ta")
     Msg_ScreenFade = get_user_msgid("ScreenFade");
     RegisterHookChain(RG_PlayerBlind, "PlayerBlind", .post = false)
 }
@@ -21,12 +21,14 @@ public PlayerBlind(const index, const inflictor, const attacker, const Float:fad
 }
 
 public sctf_flag_dropped(player, ent){
+    remove_task(player)
     message_begin(MSG_ONE, Msg_ScreenFade, {0,0,0}, player)
     write_short(0);write_short(0);write_short(0);write_byte(0);
     write_byte(0);write_byte(0);write_byte(0);
     message_end()
 }
 public sctf_flag_scored(player, ent){
+    remove_task(player)
     message_begin(MSG_ONE, Msg_ScreenFade, {0,0,0}, player)
     write_short(0);write_short(0);write_short(0);write_byte(0);
     write_byte(0);write_byte(0);write_byte(0);
