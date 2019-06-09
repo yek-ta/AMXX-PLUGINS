@@ -10,7 +10,7 @@
 
 // started Simple Capture the Flag plugin.
 #define PLUGIN  "Simple Capture the Flag"
-#define VERSION "1.7.4"
+#define VERSION "1.7.5"
 #define AUTHOR  "Yek'-ta"
 
 #define FLAG_CLASS "YektaG"
@@ -74,6 +74,7 @@ new bool:individual[INDIVIDUAL_BOOLS][33]
 public plugin_init()
 {
     register_plugin(PLUGIN, VERSION, AUTHOR)
+    register_cvar("SCTF",VERSION,FCVAR_SERVER)
     register_clcmd(MENU_COMMAND, "SCTF_MENU" , MENU_FLAG)
 
     //Events
@@ -260,6 +261,8 @@ public plugin_natives()
     register_native("sctf_ent_CTFlag", "native_ent_CTFlag", 1)
     register_native("is_user_inCTFlagBase", "native_is_user_inCTFlagBase", 1)
     register_native("is_user_inTEFlagBase", "native_is_user_inTEFlagBase", 1)
+
+    register_native("sctf_move_to_flag_back", "MOVEBACK_FLAG", 1)
 }
 public native_who_TEflagger()
 {
@@ -343,24 +346,20 @@ public RG_RestartRound(){
 public MOVEBACK_FLAG(enti){
     set_entvar(enti,var_aiment,0)
     set_entvar(enti,var_movetype,6)
-
     new Float:originf[3]
     Set_Entity_Anim(enti, 0,0);
     Set_Entity_Model(enti,1);
     if(enti==int_values[ent_TEFlag]){
-        originf = coordinates[COOR_TEBASE]
-        originf[2] = originf[2]-30.0
+        get_entvar(int_values[ent_TEFlagBase], var_origin, originf);
         int_values[holdingflag_CT] = 0
         set_entvar(enti, var_body, 2)
     }
     else {
-        originf = coordinates[COOR_CTBASE]
-        originf[2] = originf[2]-30.0
+        get_entvar(int_values[ent_CTFlagBase], var_origin, originf);
         int_values[holdingflag_TE] = 0
         set_entvar(enti, var_body, 1)
     }
     entity_set_origin(enti, originf)
-
     get_entvar(enti, var_angles, originf);
     originf[0] = 360.0
     originf[2] = 0.0
@@ -503,7 +502,7 @@ public CREATE_ENTITY(){
     entity_set_int(int_values[ent_CTFlag],EV_INT_movetype,6)
     entity_set_int(int_values[ent_CTFlag],EV_INT_solid,1)
     set_entvar(int_values[ent_CTFlag], var_gravity, 1.5)
-    entity_set_size(int_values[ent_CTFlag],Float:{-2.0,-2.0,-2.0},Float:{5.0,5.0,50.0})
+    entity_set_size(int_values[ent_CTFlag],Float:{-2.0,-2.0,-2.0},Float:{25.0,25.0,50.0})
     set_entvar(int_values[ent_CTFlag], var_body, 1)
     Set_Entity_Anim(int_values[ent_CTFlag], 0,0);
     set_entvar(int_values[ent_CTFlag], var_globalname, "CT Flag")
@@ -519,7 +518,7 @@ public CREATE_ENTITY(){
     entity_set_int(int_values[ent_TEFlag],EV_INT_movetype,6)
     entity_set_int(int_values[ent_TEFlag],EV_INT_solid,1)
     set_entvar(int_values[ent_TEFlag], var_gravity, 1.5)
-    entity_set_size(int_values[ent_TEFlag],Float:{-2.0,-2.0,-2.0},Float:{5.0,5.0,50.0})
+    entity_set_size(int_values[ent_TEFlag],Float:{-2.0,-2.0,-2.0},Float:{25.0,25.0,50.0})
     set_entvar(int_values[ent_TEFlag], var_body, 2)
     Set_Entity_Anim(int_values[ent_TEFlag], 0,0);
     set_entvar(int_values[ent_TEFlag], var_globalname, "TE Flag")
