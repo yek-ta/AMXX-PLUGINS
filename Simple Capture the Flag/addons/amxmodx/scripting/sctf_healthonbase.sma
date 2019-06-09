@@ -5,7 +5,7 @@
 #include <reapi>
 
 #define PLUGIN  "SCTF Health on Base"
-#define VERSION "1.0"
+#define VERSION "1.1"
 #define AUTHOR  "Yek'-ta"
 new gSpr_regeneration
 public plugin_init()
@@ -26,7 +26,7 @@ public sctf_player_entered_TEFlagBase(player,ent){
 public yetonbase(player){
     if(is_user_connected(player) && is_user_alive(player)){
         if(is_user_inCTFlagBase(player) || is_user_inTEFlagBase(player)){
-            set_task(1.0,"yetonbase",player)
+            set_task(0.4,"yetonbase",player)
             new Float:health = Float:get_entvar(player, var_health);
             if(health < 100.0){
                 player_healingEffect(player)
