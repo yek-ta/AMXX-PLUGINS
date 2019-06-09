@@ -87,6 +87,16 @@ Yek'-ta
  native sctf_ent_CTFlag()
 
 
+/**
+ * When use it, Flag back to base.
+ *
+ * Exm; sctf_move_to_flag_back(sctf_ent_TEFlag())
+ * Exm; sctf_move_to_flag_back(sctf_ent_CTFlag())
+ *
+ */
+ native sctf_move_to_flag_back(flag)
+
+
 
 /**
  * When a player is on CTFlagBase, it works.
