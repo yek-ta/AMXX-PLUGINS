@@ -1,0 +1,44 @@
+[en]
+DROPFLAGCT = %s dropped the CTFlag
+DROPFLAGTE = %s dropped the TEFlag
+TOOKFLAGCT = %s took CTFlag
+TOOKFLAGTE = %s took TEFlag
+TOOKOWNFLAGCT = %s took own flag and flag is back to base
+TOOKOWNFLAGTE = %s took own flag and flag is back to base
+SCOREDCT = %s SCORED!!
+SCOREDTE = %s SCORED!!
+ADMIN_MOVED_FLAGS = ^1[SCTF] ^3%s ^4moved flags to base.
+FLAGGER_SLAYED = ^1[SCTF] ^3%s ^4slayed. Because carried the flag for a long time.
+FLAGTOBASE = ^1[SCTF] ^3%s ^1is back to base. Because flag was ground for a long time.
+TEFLAG = TEFlag
+CTFLAG = CTFlag
+
+[tr]
+DROPFLAGCT = %s CT Bayragini Dusurdu
+DROPFLAGTE = %s TE Bayragini Dusurdu..
+TOOKFLAGCT = %s CT Bayragini Sirtladi..
+TOOKFLAGTE = %s TE Bayragini Sirtladi
+TOOKOWNFLAGCT = %s Takiminin Bayragini Geri Tasidi.
+TOOKOWNFLAGTE = %s Takiminin Bayragini Geri Tasidi.
+SCOREDCT = %s SKORLADI!!
+SCOREDTE = %s SKORLADI!!
+ADMIN_MOVED_FLAGS = ^1[SCTF] ^3%s ^4bayraklari yerlerine tasidi.
+FLAGGER_SLAYED = ^1[SCTF] ^3%s ^4 bayragi cok uzun sure tasidigi icin slaylandi.
+FLAGTOBASE = ^1[SCTF] ^3%s ^1bayragi uzun sure acikta kaldigi icin yerine tasindi.
+TEFLAG = TEFlag
+CTFLAG = CTFlag
+
+[ru]
+DROPFLAGCT = %s бросил флаг противника
+DROPFLAGTE = %s бросил флаг противника
+TOOKFLAGCT = %s взял флаг
+TOOKFLAGTE = %s взял флаг
+TOOKOWNFLAGCT = %s взял собственный флаг, флаг противника вернулся на базу
+TOOKOWNFLAGTE = %s взял собственный флаг, флаг противника вернулся на базу
+SCOREDCT = %s донес флаг!!
+SCOREDTE = %s донес флаг!!
+ADMIN_MOVED_FLAGS = ^1[SCTF] ^3%s ^4перенес флаги на базы.
+FLAGGER_SLAYED = ^1[SCTF] ^3%s ^4наказан, потому что долго нес флаг.
+FLAGTOBASE = ^1[SCTF] ^3%s ^1возвращается на базу, потому что флаг долго был на земле.
+TEFLAG = TEFlag
+CTFLAG = CTFlag
