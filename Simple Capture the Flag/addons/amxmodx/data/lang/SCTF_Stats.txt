@@ -1,0 +1,13 @@
+[en]
+ME = ^1[SCTF] You ^3took %i flags^1,^3 and you scored %i flags.
+SCOREDFLAG = Scored
+TAKENFLAG = Taken flag
+SHOWTOPOFF = ^1[SCTF] This command is off.
+SHOWTOPLIST = Flagger TopList^n1.%s^n2.%s^n3.%s
+
+[tr]
+ME = ^1[SCTF] Bu zamana kadar ^3%i Bayrak Kapip^1, ^3%i Bayrak Skorlamissin.
+SCOREDFLAG = Skorlama
+TAKENFLAG = Aldigi Bayrak
+SHOWTOPOFF = ^1[SCTF] Bu komut kapalidir.
+SHOWTOPLIST = Flagger TopList^n1.%s^n2.%s^n3.%s
