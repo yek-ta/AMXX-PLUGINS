@@ -28,7 +28,7 @@ new pdData[ MAX_PLAYERS + 1 ][ PlayerData ];
 new g_AuthID[ MAX_PLAYERS + 1 ][ 34 ];
 new bool:g_BotOrHLTV[ MAX_PLAYERS + 1 ];
 new g_Vault;
-
+#define MAX_BUFFER_LENGTH       2047
 public plugin_init()
 {
     register_plugin( "SCTF Stats" , "1.0Beta" , "Yek'-ta" );
@@ -83,7 +83,7 @@ public ShowTop10( id )
     static iSortData[ Max_Player_Support ][ Top15Info ];
 
     new iVault , iRow , iCount , iNextOffset , iCurrentOffset , szKey[ 45 ] , iAvailablePlayers , pdVal[ PlayerData ];
-    new szMOTD[ 1501 ] , iPos;
+    new szMOTD[ MAX_BUFFER_LENGTH + 1 ] , iPos;
 
     nvault_close( g_Vault );
     g_Vault = nvault_open( VaultName );
@@ -106,7 +106,7 @@ public ShowTop10( id )
     iPos += formatex(szMOTD[ iPos ] , charsmax( szMOTD ) - iPos, "<tr><td><br/> <td></tr><tr><td><br/> <td></tr><tr><td><br/> <td></tr><tr><td><br/> <td></tr><tr><td><br/> <b><td></tr><tr><td>%s<td>%s<td>%s<td>%s</b>",
                   "#", "Nick", "Bayrak Skorlama", "Bayrak Alma" );
 
-    iAvailablePlayers = min( iCount , 1 );
+    iAvailablePlayers = min( iCount , 10 );
     new istate[4]
     for ( iRow = 0 ; iRow < iAvailablePlayers ; iRow++ )
     {
