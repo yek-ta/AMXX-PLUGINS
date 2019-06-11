@@ -3,16 +3,19 @@
 #include <amxmodx>
 #include <amxmisc>
 #include <simple_ctf>
+#include <reapi>
 
 new Float:pCvar_Flagger_Time;
 new Float:pCvar_BackToBase_Time;
+new nMaxPlayers;
 public plugin_init()
 {
-    register_plugin("SCTF Flaggers Controller", "1.1", "Yek'-ta")
+    register_plugin("SCTF Flaggers Controller", "1.2", "Yek'-ta")
     register_clcmd("sctf_backtoflag", "move_back_flag_com" , ADMIN_BAN)
     register_dictionary("Simple_CTF.txt");
     pCvar_Flagger_Time = get_pcvar_float(register_cvar("sctf_flagger_time", "90"))
     pCvar_BackToBase_Time = get_pcvar_float(register_cvar("sctf_flag_backtobase", "90"))
+    nMaxPlayers = get_member_game(m_nMaxPlayers);
 }
 public move_back_flag_com(id, level, cid){
     if( !cmd_access( id, level, cid, 1 ) )
@@ -20,6 +23,12 @@ public move_back_flag_com(id, level, cid){
 
     sctf_move_to_flag_back(sctf_ent_TEFlag())
     sctf_move_to_flag_back(sctf_ent_CTFlag())
+
+    remove_task(sctf_ent_TEFlag());
+    remove_task(sctf_ent_CTFlag());
+    for (new i = 1; i <= nMaxPlayers; i++){
+        remove_task(i);
+    }
     new name[MAX_NAME_LENGTH]
     get_user_name(id, name, charsmax(name))
     client_print_color(0, id, "%L", LANG_PLAYER, "ADMIN_MOVED_FLAGS",name)
