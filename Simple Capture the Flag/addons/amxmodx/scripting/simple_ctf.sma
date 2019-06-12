@@ -1,4 +1,8 @@
-/* Yek'-ta */
+/* Yek'-ta
+
+    https://github.com/yek-ta/AMXX-PLUGINS/tree/master/Simple%20Capture%20the%20Flag
+
+*/
 
 #include <amxmodx>
 #include <amxmisc>
@@ -10,7 +14,7 @@
 
 // started Simple Capture the Flag plugin.
 #define PLUGIN  "Simple Capture the Flag"
-#define VERSION "1.7.5"
+#define VERSION "1.7.6"
 #define AUTHOR  "Yek'-ta"
 
 #define FLAG_CLASS "YektaG"
@@ -310,7 +314,7 @@ public client_disconnected(id){
 public Death_MSG(){
     new victim = read_data( 2 );
     if(int_values[holdingflag_CT] == victim){
-        new Float:originf[3]
+        static Float:originf[3]
         get_entvar(victim, var_origin, originf);
         entity_set_origin(int_values[ent_TEFlag], originf)
         entity_set_int(int_values[ent_TEFlag],EV_INT_movetype,MOVETYPE_TOSS)
@@ -324,7 +328,7 @@ public Death_MSG(){
         ExecuteForward(forw[flag_dropped], forw[for_forw], victim,int_values[ent_TEFlag]);
     }
     else if(int_values[holdingflag_TE] == victim){
-        new Float:originf[3]
+        static Float:originf[3]
         get_entvar(victim, var_origin, originf);
         entity_set_origin(int_values[ent_CTFlag], originf)
         entity_set_int(int_values[ent_CTFlag],EV_INT_movetype,MOVETYPE_TOSS)
