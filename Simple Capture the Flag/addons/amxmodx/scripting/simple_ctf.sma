@@ -14,7 +14,7 @@
 
 // started Simple Capture the Flag plugin.
 #define PLUGIN  "Simple Capture the Flag"
-#define VERSION "1.8.0A"
+#define VERSION "1.8.0"
 #define AUTHOR  "Yek'-ta"
 
 #define FLAG_CLASS "SimpleCTFlag"
@@ -301,9 +301,8 @@ public client_disconnected(id){
 }
 public RG_PlayerKilled(const victim, const killer){
     if(int_values[holdingflag_CT] == victim){
-        set_entvar(int_values[ent_TEFlag],var_aiment,-1)
-        entity_set_int(int_values[ent_TEFlag],EV_INT_movetype,MOVETYPE_TOSS)
-        set_entvar(int_values[ent_TEFlag], var_body, 2)
+        entity_set_int(int_values[ent_TEFlag],EV_INT_movetype,MOVETYPE_NOCLIP)
+        set_entvar(int_values[ent_TEFlag],var_aiment,0)
         Set_Entity_Anim(int_values[ent_TEFlag], 1,0);
         get_entvar(victim, var_origin, coordinates[COOR_TE]);
         while(point_contents(coordinates[COOR_TE]) == CONTENTS_EMPTY)
@@ -313,9 +312,8 @@ public RG_PlayerKilled(const victim, const killer){
         ExecuteForward(forw[flag_dropped], forw[for_forw], victim,int_values[ent_TEFlag], killer);
     }
     else if(int_values[holdingflag_TE] == victim){
-        set_entvar(int_values[ent_CTFlag],var_aiment,-1)
-        entity_set_int(int_values[ent_CTFlag],EV_INT_movetype,MOVETYPE_TOSS)
-        set_entvar(int_values[ent_CTFlag], var_body, 1)
+        entity_set_int(int_values[ent_CTFlag],EV_INT_movetype,MOVETYPE_NOCLIP)
+        set_entvar(int_values[ent_CTFlag],var_aiment,0)
         Set_Entity_Anim(int_values[ent_CTFlag], 1,0);
         get_entvar(victim, var_origin, coordinates[COOR_CT]);
         while(point_contents(coordinates[COOR_CT]) == CONTENTS_EMPTY)
@@ -351,12 +349,6 @@ public MOVEBACK_FLAG(enti){
     set_entvar(enti, var_angles, originf);
 }
 public touch_entity(enti, id){
-    if(id == 0){
-        entity_set_int(enti,EV_INT_movetype,MOVETYPE_NONE)
-        //client_print_color(0,0,"Bug Aldilandi, Fixlendi")
-        return
-    }
-
     if(!is_entity(enti))
         return
 
@@ -492,7 +484,7 @@ public CREATE_ENTITY(){
     entity_set_origin(int_values[ent_CTFlag], coordinates[COOR_CT])
     entity_set_int(int_values[ent_CTFlag],EV_INT_movetype,MOVETYPE_NONE)
     entity_set_int(int_values[ent_CTFlag],EV_INT_solid,1)
-    set_entvar(int_values[ent_CTFlag], var_gravity, 1.5)
+    set_entvar(int_values[ent_CTFlag], var_gravity, 0.0)
     set_entvar(int_values[ent_CTFlag], var_velocity, {0.0,0.0,-50.0});
     entity_set_size(int_values[ent_CTFlag],Float:{-22.62, -26.75, -101.7},Float:{22.64, 24.11,  120.46})
     set_entvar(int_values[ent_CTFlag], var_body, 1)
@@ -510,7 +502,7 @@ public CREATE_ENTITY(){
     entity_set_origin(int_values[ent_TEFlag], coordinates[COOR_TE])
     entity_set_int(int_values[ent_TEFlag],EV_INT_movetype,MOVETYPE_NONE)
     entity_set_int(int_values[ent_TEFlag],EV_INT_solid,1)
-    set_entvar(int_values[ent_TEFlag], var_gravity, 1.5)
+    set_entvar(int_values[ent_TEFlag], var_gravity, 0.0)
     set_entvar(int_values[ent_TEFlag], var_velocity, {0.0,0.0,-50.0});
     entity_set_size(int_values[ent_TEFlag],Float:{-22.62, -26.75, -101.7},Float:{22.64, 24.11,  120.46})
     set_entvar(int_values[ent_TEFlag], var_body, 2)
