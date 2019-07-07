@@ -14,11 +14,11 @@
 
 // started Simple Capture the Flag plugin.
 #define PLUGIN  "Simple Capture the Flag"
-#define VERSION "1.7.6"
+#define VERSION "1.8.0A"
 #define AUTHOR  "Yek'-ta"
 
-#define FLAG_CLASS "YektaG"
-#define NEWFLAG_CLASS "NewYektaG"
+#define FLAG_CLASS "SimpleCTFlag"
+#define NEWFLAG_CLASS "NewSimpleCTFlag"
 
 #define TEAM_TE 1
 #define TEAM_CT 2
@@ -31,12 +31,11 @@
 #define is_valid_player(%1) (1 <= %1 <= 32)
 
 new BKMODEL[64]
-new TAMODEL[64]
 
 enum _:COORDINATE_NAMES
 {
-    COOR_CTBASE,
-    COOR_TEBASE,
+    COOR_CT,
+    COOR_TE,
     NEW_COOR_CTBASE,
     NEW_COOR_TEBASE
 }
@@ -51,7 +50,7 @@ enum _:INT_VALUES_NAMES
     ent_TEFlagBase,
     ent_NEW_TEFlag,
     modeldosyasi,
-    sirtmodeldosyasi
+    maxplayer
 }
 
 enum _:FORW_VALUES_NAMES
@@ -75,56 +74,50 @@ new int_values[INT_VALUES_NAMES]
 new forw[FORW_VALUES_NAMES]
 new bool:individual[INDIVIDUAL_BOOLS][33]
 
+
 public plugin_init()
 {
     register_plugin(PLUGIN, VERSION, AUTHOR)
     register_cvar("SCTF",VERSION,FCVAR_SERVER)
     register_clcmd(MENU_COMMAND, "SCTF_MENU" , MENU_FLAG)
 
-    //Events
-    register_touch(FLAG_CLASS, "player",  "touch_entity");
-    register_event( "DeathMsg" , "Death_MSG" , "a" )
     RegisterHookChain(RG_CSGameRules_RestartRound, "RG_RestartRound", true)
+    RegisterHookChain(RG_CSGameRules_PlayerKilled, "RG_PlayerKilled", true)
 
     //Forward
-    forw[flag_dropped] = CreateMultiForward("sctf_flag_dropped", ET_IGNORE, FP_CELL,FP_CELL)
+    forw[flag_dropped] = CreateMultiForward("sctf_flag_dropped", ET_IGNORE, FP_CELL,FP_CELL, FP_CELL)
     forw[flag_take] = CreateMultiForward("sctf_flag_is_takenoff", ET_IGNORE, FP_CELL,FP_CELL)
     forw[flag_backtobase] = CreateMultiForward("sctf_flag_backtobase", ET_IGNORE, FP_CELL,FP_CELL)
     forw[scored] = CreateMultiForward("sctf_flag_scored", ET_IGNORE, FP_CELL,FP_CELL)
     forw[forw_inTEFlagBase] = CreateMultiForward("sctf_player_entered_TEFlagBase", ET_IGNORE, FP_CELL,FP_CELL)
     forw[forw_inCTFlagBase] = CreateMultiForward("sctf_player_entered_CTFlagBase", ET_IGNORE, FP_CELL,FP_CELL)
-
+    int_values[maxplayer] = get_member_game(m_nMaxPlayers)
 }
-
 public plugin_precache()
 {
-    formatex(BKMODEL,charsmax(BKMODEL),"models/sctf/flag2019.mdl");
-    formatex(TAMODEL,charsmax(TAMODEL),"models/sctf/playerflag2019.mdl");
+    formatex(BKMODEL,charsmax(BKMODEL),"models/simple_ctf/simple_ctf.mdl");
 
     SCTF_Files()
 
     int_values[modeldosyasi] = precache_model(BKMODEL)
-    int_values[sirtmodeldosyasi] = precache_model(TAMODEL)
 }
 public plugin_cfg(){
-    if(coordinates[COOR_TEBASE][0] == 0.0 && coordinates[COOR_TEBASE][1] == 0.0 && coordinates[COOR_TEBASE][2] == 0.0 && coordinates[COOR_CTBASE][0] == 0.0 && coordinates[COOR_CTBASE][1] == 0.0 && coordinates[COOR_CTBASE][2] == 0.0){
-        new iFindSpawn = find_ent_by_class(get_member_game(m_nMaxPlayers), "info_player_deathmatch")
+    if(coordinates[COOR_TE][0] == 0.0 && coordinates[COOR_TE][1] == 0.0 && coordinates[COOR_TE][2] == 0.0 && coordinates[COOR_CT][0] == 0.0 && coordinates[COOR_CT][1] == 0.0 && coordinates[COOR_CT][2] == 0.0){
+        new iFindSpawn = find_ent_by_class(int_values[maxplayer], "info_player_deathmatch")
         if(iFindSpawn){
             get_entvar(iFindSpawn, var_origin, coordinates[NEW_COOR_TEBASE]);
             while(point_contents(coordinates[NEW_COOR_TEBASE]) == CONTENTS_EMPTY)
                 coordinates[NEW_COOR_TEBASE][2] -= 1.0
-            coordinates[NEW_COOR_TEBASE][2] += 35.0
         }
         else{
             server_print("[ SCTF ] There is a problem about TESpawnPoints")
             return;
         }
-        iFindSpawn = find_ent_by_class(get_member_game(m_nMaxPlayers), "info_player_start")
+        iFindSpawn = find_ent_by_class(int_values[maxplayer], "info_player_start")
         if(iFindSpawn){
             get_entvar(iFindSpawn, var_origin, coordinates[NEW_COOR_CTBASE]);
             while(point_contents(coordinates[NEW_COOR_CTBASE]) == CONTENTS_EMPTY)
                 coordinates[NEW_COOR_CTBASE][2] -= 1.0
-            coordinates[NEW_COOR_CTBASE][2] += 35.0
         }
         else{
             server_print("[ SCTF ] There is a problem about CTSpawnPoints")
@@ -171,11 +164,6 @@ public SCTF_Files(){
                     formatex(BKMODEL,charsmax(BKMODEL),value);
                     server_print("[ SCTF ] Flag model changed to %s ", value)
                 }
-                else if (equal(key[3], "PLAYER'S FLAG MODEL"))
-                {
-                    formatex(TAMODEL,charsmax(TAMODEL),value);
-                    server_print("[ SCTF ] Player's Flag model changed to %s ", value)
-                }
                 else {
                     server_cmd("%s",key[3])
                 }
@@ -215,28 +203,28 @@ public SCTF_Files(){
 
             if (equal(key[3], "TEX"))
             {
-                coordinates[COOR_TEBASE][0] = floatstr(value)
+                coordinates[COOR_TE][0] = floatstr(value)
             }
             else if (equal(key[3], "TEY"))
             {
-                coordinates[COOR_TEBASE][1] = floatstr(value)
+                coordinates[COOR_TE][1] = floatstr(value)
             }
             else if (equal(key[3], "TEZ"))
             {
-                coordinates[COOR_TEBASE][2] = floatstr(value)
+                coordinates[COOR_TE][2] = floatstr(value)
             }
 
             else if (equal(key[3], "CTX"))
             {
-                coordinates[COOR_CTBASE][0] = floatstr(value)
+                coordinates[COOR_CT][0] = floatstr(value)
             }
             else if (equal(key[3], "CTY"))
             {
-                coordinates[COOR_CTBASE][1] = floatstr(value)
+                coordinates[COOR_CT][1] = floatstr(value)
             }
             else if (equal(key[3], "CTZ"))
             {
-                coordinates[COOR_CTBASE][2] = floatstr(value)
+                coordinates[COOR_CT][2] = floatstr(value)
             }
             continue;
         }
@@ -244,13 +232,13 @@ public SCTF_Files(){
     if (file) fclose(file)
     server_print("[ SCTF ] read in %s .", filepath)
 
-    coordinates[NEW_COOR_TEBASE][0] = coordinates[COOR_TEBASE][0]
-    coordinates[NEW_COOR_TEBASE][1] = coordinates[COOR_TEBASE][1]
-    coordinates[NEW_COOR_TEBASE][2] = coordinates[COOR_TEBASE][2]
+    coordinates[NEW_COOR_TEBASE][0] = coordinates[COOR_TE][0]
+    coordinates[NEW_COOR_TEBASE][1] = coordinates[COOR_TE][1]
+    coordinates[NEW_COOR_TEBASE][2] = coordinates[COOR_TE][2]
 
-    coordinates[NEW_COOR_CTBASE][0] = coordinates[COOR_CTBASE][0]
-    coordinates[NEW_COOR_CTBASE][1] = coordinates[COOR_CTBASE][1]
-    coordinates[NEW_COOR_CTBASE][2] = coordinates[COOR_CTBASE][2]
+    coordinates[NEW_COOR_CTBASE][0] = coordinates[COOR_CT][0]
+    coordinates[NEW_COOR_CTBASE][1] = coordinates[COOR_CT][1]
+    coordinates[NEW_COOR_CTBASE][2] = coordinates[COOR_CT][2]
 }
 /*================================================================================
  [Native]
@@ -311,36 +299,30 @@ public client_disconnected(id){
         MOVEBACK_FLAG(int_values[ent_TEFlag])
     }
 }
-public Death_MSG(){
-    new victim = read_data( 2 );
+public RG_PlayerKilled(const victim, const killer){
     if(int_values[holdingflag_CT] == victim){
-        static Float:originf[3]
-        get_entvar(victim, var_origin, originf);
-        entity_set_origin(int_values[ent_TEFlag], originf)
-        entity_set_int(int_values[ent_TEFlag],EV_INT_movetype,MOVETYPE_TOSS)
         set_entvar(int_values[ent_TEFlag],var_aiment,-1)
+        entity_set_int(int_values[ent_TEFlag],EV_INT_movetype,MOVETYPE_TOSS)
         set_entvar(int_values[ent_TEFlag], var_body, 2)
-        set_entvar(int_values[ent_TEFlag], var_gravity, 1.5)
-        set_entvar(int_values[ent_TEFlag], var_velocity, {0.0,0.0,-50.0});
-        Set_Entity_Model(int_values[ent_TEFlag],1);
         Set_Entity_Anim(int_values[ent_TEFlag], 1,0);
+        get_entvar(victim, var_origin, coordinates[COOR_TE]);
+        while(point_contents(coordinates[COOR_TE]) == CONTENTS_EMPTY)
+            coordinates[COOR_TE][2] -= 1.0
+        set_entvar(int_values[ent_TEFlag], var_origin, coordinates[COOR_TE]);
         int_values[holdingflag_CT] = -1;
-        ExecuteForward(forw[flag_dropped], forw[for_forw], victim,int_values[ent_TEFlag]);
+        ExecuteForward(forw[flag_dropped], forw[for_forw], victim,int_values[ent_TEFlag], killer);
     }
     else if(int_values[holdingflag_TE] == victim){
-        static Float:originf[3]
-        get_entvar(victim, var_origin, originf);
-        entity_set_origin(int_values[ent_CTFlag], originf)
-        entity_set_int(int_values[ent_CTFlag],EV_INT_movetype,MOVETYPE_TOSS)
         set_entvar(int_values[ent_CTFlag],var_aiment,-1)
+        entity_set_int(int_values[ent_CTFlag],EV_INT_movetype,MOVETYPE_TOSS)
         set_entvar(int_values[ent_CTFlag], var_body, 1)
-        set_entvar(int_values[ent_CTFlag], var_gravity, 1.5)
-        set_entvar(int_values[ent_CTFlag], var_velocity, {0.0,0.0,-50.0});
-        Set_Entity_Model(int_values[ent_CTFlag],1);
         Set_Entity_Anim(int_values[ent_CTFlag], 1,0);
+        get_entvar(victim, var_origin, coordinates[COOR_CT]);
+        while(point_contents(coordinates[COOR_CT]) == CONTENTS_EMPTY)
+            coordinates[COOR_CT][2] -= 1.0
+        set_entvar(int_values[ent_CTFlag], var_origin, coordinates[COOR_CT]);
         int_values[holdingflag_TE] = -1;
-        ExecuteForward(forw[flag_dropped], forw[for_forw], victim,int_values[ent_CTFlag]);
-
+        ExecuteForward(forw[flag_dropped], forw[for_forw], victim,int_values[ent_CTFlag], killer);
     }
 }
 public RG_RestartRound(){
@@ -348,11 +330,10 @@ public RG_RestartRound(){
     MOVEBACK_FLAG(int_values[ent_TEFlag])
 }
 public MOVEBACK_FLAG(enti){
-    set_entvar(enti,var_aiment,0)
-    set_entvar(enti,var_movetype,6)
+    set_entvar(enti,var_aiment,-1)
+    set_entvar(enti,var_movetype,MOVETYPE_TOSS)
     new Float:originf[3]
     Set_Entity_Anim(enti, 0,0);
-    Set_Entity_Model(enti,1);
     if(enti==int_values[ent_TEFlag]){
         get_entvar(int_values[ent_TEFlagBase], var_origin, originf);
         int_values[holdingflag_CT] = 0
@@ -370,11 +351,15 @@ public MOVEBACK_FLAG(enti){
     set_entvar(enti, var_angles, originf);
 }
 public touch_entity(enti, id){
+    if(id == 0){
+        entity_set_int(enti,EV_INT_movetype,MOVETYPE_NONE)
+        //client_print_color(0,0,"Bug Aldilandi, Fixlendi")
+        return
+    }
+
     if(!is_entity(enti))
         return
 
-    if(!is_valid_player(id))
-        return
     if(!is_user_connected(id))
         return
     if(!is_user_alive(id) || is_user_bot(id))
@@ -448,8 +433,7 @@ public touch_entity(enti, id){
         else{
             entity_set_int(casual_ent[0], EV_INT_movetype, MOVETYPE_FOLLOW);
             entity_set_edict(casual_ent[0], EV_ENT_aiment, id);
-            Set_Entity_Model(casual_ent[0],0);
-            set_entvar(casual_ent[0], var_body, casual_ent[1])
+            Set_Entity_Anim(casual_ent[0], 3,0);
             if(get_user_team(id) == TEAM_TE){
                 int_values[holdingflag_TE] = id
             }
@@ -472,14 +456,16 @@ public CREATE_ENTITY(){
     set_entvar(int_values[ent_CTFlagBase], var_model, BKMODEL);
     set_entvar(int_values[ent_CTFlagBase], var_modelindex, int_values[modeldosyasi]);
     set_entvar(int_values[ent_CTFlagBase], var_angles, Float:{360.0, 0.0, 0.0});
-    entity_set_origin(int_values[ent_CTFlagBase], coordinates[COOR_CTBASE])
-    entity_set_int(int_values[ent_CTFlagBase],EV_INT_movetype,6)
+    entity_set_origin(int_values[ent_CTFlagBase], coordinates[COOR_CT])
+    entity_set_int(int_values[ent_CTFlagBase],EV_INT_movetype,MOVETYPE_NONE)
     entity_set_int(int_values[ent_CTFlagBase],EV_INT_solid,1)
     set_entvar(int_values[ent_CTFlagBase], var_gravity, 1.5)
     entity_set_size(int_values[ent_CTFlagBase],Float:{-25.0,-25.0,-5.0},Float:{25.0,25.0,25.0})
     set_entvar(int_values[ent_CTFlagBase], var_body, 3)
+
     Set_Entity_Anim(int_values[ent_CTFlagBase], 0,0);
     set_entvar(int_values[ent_CTFlagBase], var_globalname, "CT Flag Base")
+    SetTouch(int_values[ent_CTFlagBase], "touch_entity");
 //---------------------------------------------------------------
     int_values[ent_TEFlagBase] = rg_create_entity("info_target")
 
@@ -487,14 +473,15 @@ public CREATE_ENTITY(){
     set_entvar(int_values[ent_TEFlagBase], var_model, BKMODEL);
     set_entvar(int_values[ent_TEFlagBase], var_modelindex, int_values[modeldosyasi]);
     set_entvar(int_values[ent_TEFlagBase], var_angles, Float:{360.0, 0.0, 0.0});
-    entity_set_origin(int_values[ent_TEFlagBase], coordinates[COOR_TEBASE])
-    entity_set_int(int_values[ent_TEFlagBase],EV_INT_movetype,6)
+    entity_set_origin(int_values[ent_TEFlagBase], coordinates[COOR_TE])
+    entity_set_int(int_values[ent_TEFlagBase],EV_INT_movetype,MOVETYPE_NONE)
     entity_set_int(int_values[ent_TEFlagBase],EV_INT_solid,1)
     set_entvar(int_values[ent_TEFlagBase], var_gravity, 1.5)
     entity_set_size(int_values[ent_TEFlagBase],Float:{-25.0,-25.0,-5.0},Float:{25.0,25.0,25.0})
     set_entvar(int_values[ent_TEFlagBase], var_body, 3)
     Set_Entity_Anim(int_values[ent_TEFlagBase], 0,0);
     set_entvar(int_values[ent_TEFlagBase], var_globalname, "TE Flag Base")
+    SetTouch(int_values[ent_TEFlagBase], "touch_entity");
 //---------------------------------------------------------------
     int_values[ent_CTFlag] = rg_create_entity("info_target")
 
@@ -502,15 +489,17 @@ public CREATE_ENTITY(){
     set_entvar(int_values[ent_CTFlag], var_model, BKMODEL);
     set_entvar(int_values[ent_CTFlag], var_modelindex, int_values[modeldosyasi]);
     set_entvar(int_values[ent_CTFlag], var_angles, Float:{360.0, 0.0, 0.0});
-    entity_set_origin(int_values[ent_CTFlag], coordinates[COOR_CTBASE])
-    entity_set_int(int_values[ent_CTFlag],EV_INT_movetype,6)
+    entity_set_origin(int_values[ent_CTFlag], coordinates[COOR_CT])
+    entity_set_int(int_values[ent_CTFlag],EV_INT_movetype,MOVETYPE_NONE)
     entity_set_int(int_values[ent_CTFlag],EV_INT_solid,1)
     set_entvar(int_values[ent_CTFlag], var_gravity, 1.5)
-    entity_set_size(int_values[ent_CTFlag],Float:{-2.0,-2.0,-2.0},Float:{25.0,25.0,50.0})
+    set_entvar(int_values[ent_CTFlag], var_velocity, {0.0,0.0,-50.0});
+    entity_set_size(int_values[ent_CTFlag],Float:{-22.62, -26.75, -101.7},Float:{22.64, 24.11,  120.46})
     set_entvar(int_values[ent_CTFlag], var_body, 1)
     Set_Entity_Anim(int_values[ent_CTFlag], 0,0);
     set_entvar(int_values[ent_CTFlag], var_globalname, "CT Flag")
     set_entvar(int_values[ent_CTFlag], var_team, 2)
+    SetTouch(int_values[ent_CTFlag], "touch_entity");
 //---------------------------------------------------------------
     int_values[ent_TEFlag] = rg_create_entity("info_target")
 
@@ -518,17 +507,17 @@ public CREATE_ENTITY(){
     set_entvar(int_values[ent_TEFlag], var_model, BKMODEL);
     set_entvar(int_values[ent_TEFlag], var_modelindex, int_values[modeldosyasi]);
     set_entvar(int_values[ent_TEFlag], var_angles, Float:{360.0, 0.0, 0.0});
-    entity_set_origin(int_values[ent_TEFlag], coordinates[COOR_TEBASE])
-    entity_set_int(int_values[ent_TEFlag],EV_INT_movetype,6)
+    entity_set_origin(int_values[ent_TEFlag], coordinates[COOR_TE])
+    entity_set_int(int_values[ent_TEFlag],EV_INT_movetype,MOVETYPE_NONE)
     entity_set_int(int_values[ent_TEFlag],EV_INT_solid,1)
     set_entvar(int_values[ent_TEFlag], var_gravity, 1.5)
-    entity_set_size(int_values[ent_TEFlag],Float:{-2.0,-2.0,-2.0},Float:{25.0,25.0,50.0})
+    set_entvar(int_values[ent_TEFlag], var_velocity, {0.0,0.0,-50.0});
+    entity_set_size(int_values[ent_TEFlag],Float:{-22.62, -26.75, -101.7},Float:{22.64, 24.11,  120.46})
     set_entvar(int_values[ent_TEFlag], var_body, 2)
     Set_Entity_Anim(int_values[ent_TEFlag], 0,0);
     set_entvar(int_values[ent_TEFlag], var_globalname, "TE Flag")
     set_entvar(int_values[ent_TEFlag], var_team, 1)
-
-    return PLUGIN_HANDLED
+    SetTouch(int_values[ent_TEFlag], "touch_entity");
 }
 
 public CREATE_NEW_FLAG(TEAM){
@@ -612,12 +601,10 @@ public c_SCTF_MENU(iId, menu, item)
     {
         case 1:
         {
-            new Float:originf[3]
-            get_entvar(iId, var_origin, originf);
+            get_entvar(iId, var_origin, coordinates[NEW_COOR_CTBASE]);
 
-            coordinates[NEW_COOR_CTBASE][0] = originf[0]
-            coordinates[NEW_COOR_CTBASE][1] = originf[1]
-            coordinates[NEW_COOR_CTBASE][2] = originf[2]
+            while(point_contents(coordinates[NEW_COOR_CTBASE]) == CONTENTS_EMPTY)
+                coordinates[NEW_COOR_CTBASE][2] -= 1.0
 
             CREATE_NEW_FLAG(TEAM_CT)
 
@@ -625,13 +612,10 @@ public c_SCTF_MENU(iId, menu, item)
         }
         case 2:
         {
-            new Float:originf[3]
-            get_entvar(iId, var_origin, originf);
+            get_entvar(iId, var_origin, coordinates[NEW_COOR_TEBASE]);
 
-            coordinates[NEW_COOR_TEBASE][0] = originf[0]
-            coordinates[NEW_COOR_TEBASE][1] = originf[1]
-            coordinates[NEW_COOR_TEBASE][2] = originf[2]
-
+            while(point_contents(coordinates[NEW_COOR_TEBASE]) == CONTENTS_EMPTY)
+                coordinates[NEW_COOR_TEBASE][2] -= 1.0
             CREATE_NEW_FLAG(TEAM_TE)
 
             client_cmd(iId,MENU_COMMAND)
@@ -655,16 +639,6 @@ public set_reset_value(id){
     }
     else{
         individual[in_CTFlagBase][id-TASK_CTFLAG] = false
-    }
-}
-public Set_Entity_Model(enti,deger){
-    if(deger==1){
-        set_entvar(enti, var_model, BKMODEL);
-        set_entvar(enti, var_modelindex, int_values[modeldosyasi]);
-    }
-    else{
-        set_entvar(enti, var_model, TAMODEL);
-        set_entvar(enti, var_modelindex, int_values[sirtmodeldosyasi]);
     }
 }
 public Set_RemoveScored(enti){
