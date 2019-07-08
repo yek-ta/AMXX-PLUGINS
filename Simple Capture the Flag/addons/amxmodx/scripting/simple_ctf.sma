@@ -14,14 +14,12 @@
 
 // started Simple Capture the Flag plugin.
 #define PLUGIN  "Simple Capture the Flag"
-#define VERSION "1.8.0"
+#define VERSION "1.8.1"
 #define AUTHOR  "Yek'-ta"
 
 #define FLAG_CLASS "SimpleCTFlag"
 #define NEWFLAG_CLASS "NewSimpleCTFlag"
 
-#define TEAM_TE 1
-#define TEAM_CT 2
 #define In_Base_Time 1.0
 
 #define TASK_TEFLAG 100
@@ -49,8 +47,7 @@ enum _:INT_VALUES_NAMES
     ent_TEFlag,
     ent_TEFlagBase,
     ent_NEW_TEFlag,
-    modeldosyasi,
-    maxplayer
+    modeldosyasi
 }
 
 enum _:FORW_VALUES_NAMES
@@ -91,19 +88,17 @@ public plugin_init()
     forw[scored] = CreateMultiForward("sctf_flag_scored", ET_IGNORE, FP_CELL,FP_CELL)
     forw[forw_inTEFlagBase] = CreateMultiForward("sctf_player_entered_TEFlagBase", ET_IGNORE, FP_CELL,FP_CELL)
     forw[forw_inCTFlagBase] = CreateMultiForward("sctf_player_entered_CTFlagBase", ET_IGNORE, FP_CELL,FP_CELL)
-    int_values[maxplayer] = get_member_game(m_nMaxPlayers)
 }
 public plugin_precache()
 {
-    formatex(BKMODEL,charsmax(BKMODEL),"models/simple_ctf/simple_ctf.mdl");
-
+    BKMODEL = "models/simple_ctf/sctf_newflag.mdl"
     SCTF_Files()
 
     int_values[modeldosyasi] = precache_model(BKMODEL)
 }
 public plugin_cfg(){
     if(coordinates[COOR_TE][0] == 0.0 && coordinates[COOR_TE][1] == 0.0 && coordinates[COOR_TE][2] == 0.0 && coordinates[COOR_CT][0] == 0.0 && coordinates[COOR_CT][1] == 0.0 && coordinates[COOR_CT][2] == 0.0){
-        new iFindSpawn = find_ent_by_class(int_values[maxplayer], "info_player_deathmatch")
+        new iFindSpawn = find_ent_by_class(MaxClients, "info_player_deathmatch")
         if(iFindSpawn){
             get_entvar(iFindSpawn, var_origin, coordinates[NEW_COOR_TEBASE]);
             while(point_contents(coordinates[NEW_COOR_TEBASE]) == CONTENTS_EMPTY)
@@ -113,7 +108,7 @@ public plugin_cfg(){
             server_print("[ SCTF ] There is a problem about TESpawnPoints")
             return;
         }
-        iFindSpawn = find_ent_by_class(int_values[maxplayer], "info_player_start")
+        iFindSpawn = find_ent_by_class(MaxClients, "info_player_start")
         if(iFindSpawn){
             get_entvar(iFindSpawn, var_origin, coordinates[NEW_COOR_CTBASE]);
             while(point_contents(coordinates[NEW_COOR_CTBASE]) == CONTENTS_EMPTY)
@@ -358,7 +353,7 @@ public touch_entity(enti, id){
         return
 
     if(int_values[ent_TEFlagBase] == enti || int_values[ent_CTFlagBase] == enti){
-        if(int_values[ent_TEFlagBase] == enti && int_values[holdingflag_CT] == 0 && get_user_team(id) == TEAM_TE && int_values[holdingflag_TE] == id){
+        if(int_values[ent_TEFlagBase] == enti && int_values[holdingflag_CT] == 0 && get_member(id, m_iTeam) == TEAM_TERRORIST && int_values[holdingflag_TE] == id){
             MOVEBACK_FLAG(int_values[ent_CTFlag])
             ExecuteForward(forw[scored], forw[for_forw], id,enti);
             rg_update_teamscores(0,1,true);
@@ -367,7 +362,7 @@ public touch_entity(enti, id){
             remove_task(int_values[ent_TEFlagBase]);
             set_task(10.0,"Set_RemoveScored",int_values[ent_TEFlagBase]);
         }
-        else if(int_values[ent_CTFlagBase] == enti && int_values[holdingflag_TE] == 0 && get_user_team(id) == TEAM_CT && int_values[holdingflag_CT] == id){
+        else if(int_values[ent_CTFlagBase] == enti && int_values[holdingflag_TE] == 0 && get_member(id, m_iTeam) == TEAM_CT && int_values[holdingflag_CT] == id){
             MOVEBACK_FLAG(int_values[ent_TEFlag])
             ExecuteForward(forw[scored], forw[for_forw], id,enti);
             rg_update_teamscores(1,0,true);
@@ -400,22 +395,23 @@ public touch_entity(enti, id){
             return
 
 
-        new casual_ent[3]
+        new casual_ent[2]
+        new TeamName:casual_ent_team
         if(int_values[ent_TEFlag] == enti){
             casual_ent[0] = int_values[ent_TEFlag]
-            casual_ent[2] = TEAM_TE
+            casual_ent_team = TEAM_TERRORIST
             casual_ent[1] = 0
             //client_print_color(id, id, "^3TE Bayragina dokundun.") // You did touch the TE flag
         }
         else{
             casual_ent[0] = int_values[ent_CTFlag]
-            casual_ent[2] = TEAM_CT
+            casual_ent_team = TEAM_CT
             casual_ent[1] = 1
             //client_print_color(id, id, "^3CT Bayragina dokundun.") // You did touch the CT flag
         }
 
 
-        if(get_user_team(id) == casual_ent[2]){
+        if(get_member(id, m_iTeam) == casual_ent_team){
             if((casual_ent[1] ? int_values[holdingflag_TE] : int_values[holdingflag_CT])  == -1){
                 MOVEBACK_FLAG(casual_ent[0])
                 ExecuteForward(forw[flag_backtobase], forw[for_forw], id,casual_ent[0]);
@@ -426,7 +422,7 @@ public touch_entity(enti, id){
             entity_set_int(casual_ent[0], EV_INT_movetype, MOVETYPE_FOLLOW);
             entity_set_edict(casual_ent[0], EV_ENT_aiment, id);
             Set_Entity_Anim(casual_ent[0], 3,0);
-            if(get_user_team(id) == TEAM_TE){
+            if(get_member(id, m_iTeam) == TEAM_TERRORIST){
                 int_values[holdingflag_TE] = id
             }
             else {
@@ -454,7 +450,6 @@ public CREATE_ENTITY(){
     set_entvar(int_values[ent_CTFlagBase], var_gravity, 1.5)
     entity_set_size(int_values[ent_CTFlagBase],Float:{-25.0,-25.0,-5.0},Float:{25.0,25.0,25.0})
     set_entvar(int_values[ent_CTFlagBase], var_body, 3)
-
     Set_Entity_Anim(int_values[ent_CTFlagBase], 0,0);
     set_entvar(int_values[ent_CTFlagBase], var_globalname, "CT Flag Base")
     SetTouch(int_values[ent_CTFlagBase], "touch_entity");
@@ -490,7 +485,7 @@ public CREATE_ENTITY(){
     set_entvar(int_values[ent_CTFlag], var_body, 1)
     Set_Entity_Anim(int_values[ent_CTFlag], 0,0);
     set_entvar(int_values[ent_CTFlag], var_globalname, "CT Flag")
-    set_entvar(int_values[ent_CTFlag], var_team, 2)
+    set_entvar(int_values[ent_CTFlag], var_team, TEAM_CT)
     SetTouch(int_values[ent_CTFlag], "touch_entity");
 //---------------------------------------------------------------
     int_values[ent_TEFlag] = rg_create_entity("info_target")
@@ -508,11 +503,11 @@ public CREATE_ENTITY(){
     set_entvar(int_values[ent_TEFlag], var_body, 2)
     Set_Entity_Anim(int_values[ent_TEFlag], 0,0);
     set_entvar(int_values[ent_TEFlag], var_globalname, "TE Flag")
-    set_entvar(int_values[ent_TEFlag], var_team, 1)
+    set_entvar(int_values[ent_TEFlag], var_team, TEAM_TERRORIST)
     SetTouch(int_values[ent_TEFlag], "touch_entity");
 }
 
-public CREATE_NEW_FLAG(TEAM){
+public CREATE_NEW_FLAG(TeamName:TEAM){
     if(TEAM == TEAM_CT){
         if(get_entvar(int_values[ent_NEW_CTFlag], var_body) == 1){
             entity_set_origin(int_values[ent_NEW_CTFlag], coordinates[NEW_COOR_CTBASE])
@@ -608,7 +603,7 @@ public c_SCTF_MENU(iId, menu, item)
 
             while(point_contents(coordinates[NEW_COOR_TEBASE]) == CONTENTS_EMPTY)
                 coordinates[NEW_COOR_TEBASE][2] -= 1.0
-            CREATE_NEW_FLAG(TEAM_TE)
+            CREATE_NEW_FLAG(TEAM_TERRORIST)
 
             client_cmd(iId,MENU_COMMAND)
         }
