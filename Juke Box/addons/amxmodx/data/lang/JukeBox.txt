@@ -1,0 +1,27 @@
+[en]
+JUKEMENUTITLE = JukeBox Menu
+CREATEJUKE = Create JukeBox
+DROPJUKE = Drop JukeBox
+SELECTJUKE = Select JukeBox
+REMOVEJUKE = Remove JukeBox
+SAVEJUKES = Save JukeBoxes
+ALIVE = ^3You should be alive for this command.
+ENOUGHJUKE = ^3There are enough jukeboxes.
+THEREISNOJUKE = ^3There is no jukebox on aim.
+TURNOFFJUKE = ^3Firstly you should turn off jukebox.
+REMOVEDJUKE = ^3You removed jukebox.
+SAVEDJUKES = ^3You saved jukeboxes.
+
+[tr]
+JUKEMENUTITLE = Muzik Kutusu
+CREATEJUKE = Muzik Kutusu Olustur
+DROPJUKE = Muzik Kutusunu Birak
+SELECTJUKE = Muzik Kutusunu Sec
+REMOVEJUKE = Muzik Kutusunu Kaldir
+SAVEJUKES = Muzik Kutularini Kaydet
+ALIVE = ^3Bu komut icin canli olmaniz gerekmektedir.
+ENOUGHJUKE = ^3Yeteri kadar muzik kutusu var.
+THEREISNOJUKE = ^3Aiminde muzik kutusu yok.
+TURNOFFJUKE = ^3Öncelikle müziği kapatın.
+REMOVEDJUKE = ^3Müzik kutusunu kaldirdin.
+SAVEDJUKES = ^3Muzik kutulari kaydedildi.
