@@ -1,34 +1,61 @@
 #include <amxmodx>
-#include <reapi>
+#include <amxmisc>
 #include <engine>
+#include <fakemeta>
 
-#define FLAGMODEL "models/TurkBayragi.mdl"
-#define SKIN1NAME "Turk Bayragi"
-#define SKIN2NAME "Ataturkiye"
-#define SKIN3NAME "Ataturk"
+#if AMXX_VERSION_NUM < 183
+    #define argbreak strbreak
+#endif
+
+#define MAXFLAG 30
 
 new const FlagClass[] = "CFlag";
 new g_MapFile[64];
-enum
-{
-    Skin1 = 0,
-    Skin2,
-    Skin3
-}
 enum _:FlagValue
 {
+    flag_model,
     flag_body,
     flag_skin
 }
 new PlayerFlagValue[FlagValue][33];
+new FlagsModels[MAXFLAG][32];
+new FlagModelSkins[MAXFLAG][3][32]
+new totalFlags
+new configsdir[200]
 public plugin_init()
 {
-    register_plugin("Create Flags on Map", "1.1", "Yek'-ta")
+    register_plugin("Create Flags on Map", "2.0", "Yek'-ta")
     set_task(5.0,"CreateMapFlags")
 
     register_clcmd( "amx_flagmenu", "FlagMenu")
 }
-
+public plugin_precache()
+{
+    get_configsdir(configsdir,199)
+    new precachefile[200]
+    format(precachefile,199,"%s/FlagModels.ini",configsdir)
+    if(file_exists(precachefile))
+    {
+        new read[96], trash, string[96], modelname[32], skin1[32], skin2[32], skin3[32]
+        for(new i=0;i<file_size(precachefile,1);i++)
+        {
+            read_file(precachefile,i,read,charsmax(string),trash)
+            argbreak (read,modelname,charsmax(modelname),string,charsmax(string))
+            argbreak (string,skin1,charsmax(skin1),string,charsmax(string))
+            argbreak (string,skin2,charsmax(skin2),string,charsmax(string))
+            argbreak (string,skin3,charsmax(skin3),string,charsmax(string))
+            if(strlen(modelname) && containi(modelname,";")!=0)
+            {
+                precache_model(modelname)
+                FlagsModels[totalFlags] = modelname
+                FlagModelSkins[totalFlags][0] = skin1
+                FlagModelSkins[totalFlags][1] = skin2
+                FlagModelSkins[totalFlags][2] = skin3
+                totalFlags++;
+            }
+        }
+    }
+}
 public FlagMenu(player){
     if(get_user_flags(player) & ADMIN_RCON){
         new menu, Menuz[512]
@@ -37,15 +64,17 @@ public FlagMenu(player){
 
         menu = menu_create(Menuz, "FlagMenuC")
 
-        formatex(Menuz, charsmax(Menuz), "\wCreate Flag" );
+        formatex(Menuz, charsmax(Menuz), "\wCreate Flag");
         menu_additem(menu, Menuz, "1")
-        formatex(Menuz, charsmax(Menuz), "\wFlag Body [%s]", PlayerFlagValue[flag_body][player] == Skin1 ? "Small" : "Large" );
+
+        formatex(Menuz, charsmax(Menuz), "\wFlag Model [%s]", FlagsModels[PlayerFlagValue[flag_model][player]][7]);
         menu_additem(menu, Menuz, "2")
 
-        if(PlayerFlagValue[flag_skin][player] == Skin1){ formatex(Menuz, charsmax(Menuz), "\wFlag Skin [%s]",SKIN1NAME ); }
-        else if(PlayerFlagValue[flag_skin][player] == Skin2){ formatex(Menuz, charsmax(Menuz), "\wFlag Skin [%s]",SKIN2NAME ); }
-        else if(PlayerFlagValue[flag_skin][player] == Skin3){ formatex(Menuz, charsmax(Menuz), "\wFlag Skin [%s]",SKIN3NAME ); }
+        formatex(Menuz, charsmax(Menuz), "\wFlag Body [%s]", PlayerFlagValue[flag_body][player] == 0 ? "Small" : "Large" );
         menu_additem(menu, Menuz, "3")
+
+        formatex(Menuz, charsmax(Menuz), "\wFlag Skin [%s]", FlagModelSkins[PlayerFlagValue[flag_model][player]][PlayerFlagValue[flag_skin][player]]);
+        menu_additem(menu, Menuz, "4")
 
         formatex(Menuz, charsmax(Menuz), "\wSave Flags" );
         menu_additem(menu, Menuz, "5")
@@ -72,7 +101,7 @@ public FlagMenuC(player, menu, item)
 
     new key = str_to_num(data)
     if(!is_user_alive(player)){
-        client_print_color(player, print_team_blue, "^3You should be alive for this command")
+        client_print(player,print_chat, "You should be alive for this command")
         return PLUGIN_HANDLED;
     }
     switch(key)
@@ -83,27 +112,35 @@ public FlagMenuC(player, menu, item)
         }
         case 2:
         {
-            PlayerFlagValue[flag_body][player] = PlayerFlagValue[flag_body][player] == Skin1 ? Skin2 : Skin1;
+            PlayerFlagValue[flag_model][player]++
+            PlayerFlagValue[flag_skin][player] = 0
+            if(PlayerFlagValue[flag_model][player] >= totalFlags)
+                PlayerFlagValue[flag_model][player] = 0;
             FlagMenu(player)
         }
         case 3:
         {
-            if(PlayerFlagValue[flag_skin][player] == Skin1){ PlayerFlagValue[flag_skin][player] = Skin2; }
-            else if(PlayerFlagValue[flag_skin][player] == Skin2){ PlayerFlagValue[flag_skin][player] = Skin3; }
-            else if(PlayerFlagValue[flag_skin][player] == Skin3){ PlayerFlagValue[flag_skin][player] = Skin1; }
+            PlayerFlagValue[flag_body][player] = PlayerFlagValue[flag_body][player] == 0 ? 1 : 0;
+            FlagMenu(player)
+        }
+        case 4:
+        {
+            PlayerFlagValue[flag_skin][player]++
+            if(PlayerFlagValue[flag_skin][player] >= 3 || !strlen(FlagModelSkins[PlayerFlagValue[flag_model][player]][PlayerFlagValue[flag_skin][player]]))
+                PlayerFlagValue[flag_skin][player] = 0;
             FlagMenu(player)
         }
         case 5:
         {
             save_allobject()
-            client_print_color(player, player, "^3Saved Flags..")
+            client_print(player,print_chat, "Saved Flags..")
         }
         case 6:
         {
-            client_print_color(player, player, "^3Deleted Flags..")
+            client_print(player,print_chat, "Deleted Flags..")
             delete_file(g_MapFile);
-            new ent = NULLENT;
-            while ((ent = rg_find_ent_by_class(ent, FlagClass)))
+            new ent = -1;
+            while ((ent = find_ent_by_class(ent, FlagClass)))
                 DestroyEntity(ent);
         }
     }
@@ -114,90 +151,88 @@ public FlagMenuC(player, menu, item)
 
 
 public client_putinserver(id){
-    PlayerFlagValue[flag_body][id]=Skin1;
-    PlayerFlagValue[flag_skin][id]=Skin1;
+    PlayerFlagValue[flag_model][id]=0;
+    PlayerFlagValue[flag_body][id]=0;
+    PlayerFlagValue[flag_skin][id]=0;
 }
 
 public DestroyEntity(ent) {
-    if (is_entity(ent))
-        set_entvar(ent, var_flags, get_entvar(ent, var_flags) | FL_KILLME);
+    if (is_valid_ent(ent))
+        remove_entity(ent)
 }
 
 stock Float:GetUser3Origin(id)
 {
     new Float:originf[3]
-    get_entvar(id, var_origin, originf);
-    originf[2] = PlayerFlagValue[flag_body][id] == Skin2 ? originf[2]+25.0 : originf[2]-35.0
+    pev(id,pev_origin,originf)
+    originf[2] = PlayerFlagValue[flag_body][id] == 1 ? originf[2]+25.0 : originf[2]-35.0
     return originf;
 }
 
 public CreateMapFlags(){
     new map[32]
     get_mapname(map, 31)
-    format(g_MapFile, sizeof(g_MapFile), "maps/%s.flags.cfg", map)
+    format(g_MapFile, sizeof(g_MapFile), "maps/%s.mflags.cfg", map)
     if (file_exists(g_MapFile)) {
         new data[124], len
         new line = 0
-        new coord[5][8]
+        new coord[6][8]
         new Float:origin[3]
-        new modeli[2]
+        new modeli[3]
         while((line = read_file(g_MapFile , line , data , 123 , len)))
         {
             if (len < 2 || data[0] == ';' || data[0] == '/')
                 continue;
-            parse(data, coord[0], 7, coord[1], 7, coord[2], 7, coord[3], 1, coord[4], 1)
+            parse(data, coord[0], 7, coord[1], 7, coord[2], 7, coord[3], 1, coord[4], 1, coord[5], 1)
             origin[0] = (str_to_float(coord[0]))
             origin[1] = (str_to_float(coord[1]))
             origin[2] = (str_to_float(coord[2]))
             modeli[0] = (str_to_num(coord[3]))
             modeli[1] = (str_to_num(coord[4]))
-            CreateFlag(origin,modeli[0],modeli[1])
+            modeli[2] = (str_to_num(coord[5]))
+            if(modeli[0] < totalFlags)
+                CreateFlag(origin,modeli[0],modeli[1], modeli[2])
         }
     }
 }
 
 stock NowCreateFlag(Float:fOrigin[3],player)
 {
-    CreateFlag(fOrigin, PlayerFlagValue[flag_body][player],PlayerFlagValue[flag_skin][player]);
+    CreateFlag(fOrigin, PlayerFlagValue[flag_model][player], PlayerFlagValue[flag_body][player],PlayerFlagValue[flag_skin][player]);
 }
 
 public save_allobject() {
     delete_file(g_MapFile)
-    new ent = NULLENT
+    new ent = -1
     new Float:fOrigin[3], line[64]
-    while ((ent = rg_find_ent_by_class(ent, FlagClass))) {
-        get_entvar(ent, var_origin, fOrigin)
-        formatex(line, sizeof(line), "%0.3f %0.3f %0.3f %i %i", fOrigin[0], fOrigin[1], fOrigin[2], get_entvar(ent, var_body), get_entvar(ent, var_skin))
+    while ((ent = find_ent_by_class(ent, FlagClass))) {
+        pev(ent,pev_origin,fOrigin)
+
+        formatex(line, sizeof(line), "%0.3f %0.3f %0.3f %i %i %i", fOrigin[0], fOrigin[1], fOrigin[2], pev(ent,pev_button), pev(ent,pev_body), pev(ent,pev_skin))
         write_file(g_MapFile, line)
     }
 }
 
-stock CreateFlag(Float:fOrigin[3], body, skin)
+CreateFlag(Float:fOrigin[3], model, body, skin)
 {
-    new pEntity = rg_create_entity("info_target");
-    if(!pEntity)
-        return 1;
-    set_entvar(pEntity, var_classname, FlagClass);
-    set_entvar(pEntity, var_movetype, MOVETYPE_NONE);
-    set_entvar(pEntity, var_origin, fOrigin);
-    set_entvar(pEntity, var_body, body);
-    set_entvar(pEntity, var_skin, skin);
-    entity_set_model(pEntity, FLAGMODEL);
+    new pEntity = create_entity("info_target");
+    entity_set_string(pEntity, EV_SZ_classname, FlagClass );
+    set_pev( pEntity, pev_movetype, MOVETYPE_NONE)
+    set_pev( pEntity, pev_origin, fOrigin)
+    set_pev( pEntity, pev_body, body)
+    set_pev( pEntity, pev_skin, skin)
+    entity_set_model(pEntity, FlagsModels[model]);
+    set_pev( pEntity, pev_button, model)
     Set_Entity_Anim(pEntity,0,0)
-    return pEntity;
 }
-
-public plugin_precache()
+Set_Entity_Anim(ent, forumcsd, ResetFrame)
 {
-    precache_model(FLAGMODEL);
-}
-stock Set_Entity_Anim(ent, forumcsd, ResetFrame)
-{
-    if(!is_entity(ent))
+    if(!is_valid_ent(ent))
         return
 
-    set_entvar(ent, var_animtime, get_gametime())
-    set_entvar(ent, var_framerate, 1.0)
-    set_entvar(ent, var_sequence, forumcsd)
-    if(ResetFrame) set_entvar(ent, var_frame, 0.0)
+    set_pev( ent, pev_animtime, get_gametime())
+    set_pev( ent, pev_framerate, 1.0)
+    set_pev( ent, pev_sequence, forumcsd)
+
+    if(ResetFrame) set_pev( ent, pev_frame, 0.0)
 }
