@@ -1,0 +1,35 @@
+[en]
+FLAG_MENU = \y [ \rFlag Menu \y]
+CREATE_FLAG = \wCreate Flag
+FLAG_MODEL = \wFlag Model [%s]
+FLAG_BODY = \wFlag Body [%s]
+FLAG_SKIN = \wFlag Skin [%s]
+SAVE_FLAGS = \wSave Flags
+DELETE_FLAGS = \wDelete Flags
+SELECT_FLAG = \wSelect Flag
+TURN = \wTurn the Flag
+RANDOM_TURN = \wRandom Turn Every Round [%s]
+ANIM_FLAG = \wChange Animation
+DELETE_FLAG = \wDelete the Flag
+DROP_FLAG = \wDrop the Flag
+
+SAVED_FLAGS = Saved Flags
+DELETED_FLAGS = Deleted Flags
+
+[tr]
+FLAG_MENU = \y [ \rBayrak Menüsü \y]
+CREATE_FLAG = \wBayrak Olustur
+FLAG_MODEL = \wBayrak Modeli [%s]
+FLAG_BODY = \wBayrak Sekli [%s]
+FLAG_SKIN = \wBayrak Kaplamasi [%s]
+SAVE_FLAGS = \wBayraklari Kaydet
+DELETE_FLAGS = \wBayraklari Sil
+SELECT_FLAG = \wBayragi Sec
+TURN = \wBayragi Cevir
+RANDOM_TURN = \wHer el bayrağın dönmesi [%s]
+ANIM_FLAG = \wAnimasyonu Değistir
+DELETE_FLAG = \wBayrağı Kaldır
+DROP_FLAG = \wBayrağı Bırak
+
+SAVED_FLAGS = Bayraklar Kaydedildi
+DELETED_FLAGS = Bayraklar Kaldirildi
