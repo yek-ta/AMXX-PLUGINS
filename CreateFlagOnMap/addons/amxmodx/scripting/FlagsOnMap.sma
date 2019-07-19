@@ -26,15 +26,21 @@ new FlagsModels[MAXFLAG][32];
 new FlagModelSkins[MAXFLAG][3][32]
 new totalFlags
 new configsdir[200]
-
+new bool:cstrikerun
 public plugin_init()
 {
-    register_plugin("Create Flag on Map", "3.0", "Yek'-ta")
+    register_plugin("Create Flag on Map", "3.2", "Yek'-ta")
     register_dictionary("FlagsOnMap.txt")
 
     register_clcmd(MENU_COMMAND, "FlagMenu", ADMIN_RCON)
 
-    register_event("HLTV", "round_start", "a", "1=0", "2=0");
+    if(cstrike_running()){
+        cstrikerun = true
+        register_event("HLTV", "round_start", "a", "1=0", "2=0");
+    }
+    else {
+        cstrikerun = false
+    }
 }
 
 public plugin_precache()
@@ -116,8 +122,10 @@ public FlagMenu(player, level, cid){
         menu_additem(menu, Menuz, "7")
     }
     else {
-        formatex(Menuz, charsmax(Menuz), "%L", player, "RANDOM_TURN", pev(PlayerFlagValue[flag][player],pev_impulse) == 0 ? "OFF" : "ON");
-        menu_additem(menu, Menuz, "1")
+        if(cstrikerun){
+            formatex(Menuz, charsmax(Menuz), "%L", player, "RANDOM_TURN", pev(PlayerFlagValue[flag][player],pev_impulse) == 0 ? "OFF" : "ON");
+            menu_additem(menu, Menuz, "1")
+        }
 
         if(pev(PlayerFlagValue[flag][player], pev_impulse) == 0){
             formatex(Menuz, charsmax(Menuz), "%L", player, "TURN");
