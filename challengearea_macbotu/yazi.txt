@@ -1,0 +1,50 @@
+Counter Strike 1.6 CSM Maç Botu- Ultimate. Normal bir maç botundan çok daha ötesi. İçeriğinde Bo1-Bo3-Bo5 harita banlama sistemi bulunan, oyuncuların pause atma hakkı olan bir bot.
+
+
+
+
+
+
+
+Geçtiğimiz 15 tatilde ChallengeArea.NET bir turnuva düzenledi, Nostalgie turnuvası. Bu turnuva için yazdığım maç botunu biraz daha geliştirip satmaya karar verdim. Bu bot sadece turnuva için değil, aynı zamanda normal maç atmak isteyenler içinde unutamayacakları bir bot.
+Hepimiz maç atma olayını diğer botlardan biliriz, !baslat ve 16 olan kazansın. Bu maç botu için bilindik bilgileri yazmayacağım, sadece diğer maç botlarından ne farkı var onları yazacağım.
+
+Harita Banlama Sistemi(BO1); Bu banlama sistemi adminin "say !bo1" yazması ile başlar. Normal KF atılır ve kazanan takımın kaptanı ilk haritayı banlama hakkına sahip olur. Her iki takımın kaptanları sırayla ban attıktan sonra sona kalan harita otomatik olarak seçilir ve 6 saniye sonra harita açılır. Seçilen harita, açıldığı gibi kalır.
+
+
+
+Harita Banlama Sistemi(BO3); Bu banlama sistemi adminin "say !bo3" yazması ile başlar. Normal KF atılır ve kazanan takımın kaptanı ilk haritayı banlama hakkına sahip olur. Her iki takımın kaptanları sırayla ban attıktan / harita seçtikten 10 saniye sonra harita açılır. BO3'ün ilk haritası açıldıktan sonra ilk haritayı seçen takım maça TE başlamalıdır (KF'yi kazanan takım yani). BO3'ün ilk haritası bittikten sonra otomatik olarak BO3'ün ikinci haritası açılır. BO3'ün ikinci haritasını seçen maça TE başlamalıdır(KF'yi kaybeden takım yani). Maç bittikten sonra maç botu skorlara bakar. Eğer ki durum 1-1 ise BO3'ün üçüncü haritasını açar. BO3'ün üçüncü haritasını seçen takım maça TE başlamalıdır(KF'yi kazanan takım yani). Maç bittiğinde durum 2-1 olacağı için maç botu 10 saniye sonra kendini ilk ayarlarına alır.
+Her harita açılışında maç ya adminin maçı start vermesi ile başlar yada ready komutu ile başlar.
+
+
+
+
+
+
+Harita Banlama Sistemi(BO5); Bu banlama sistemi adminin "say !bo5" yazması ile başlar. BO3 ban sistemi ile aynıdır, 3 harita kazanan takım BO5'i kazanmış olur.
+Her harita açılışında maç ya adminin maçı start vermesi ile başlar yada ready komutu ile başlar.
+
+
+
+
+
+
+
+
+Pause sistemi; Hakeme ihtiyaç duymadan kullanılabilen bir pause sistemidir. Her takımın maç başı 3 pause hakkı bulunur. Bu komutu maçtaki bütün oyuncular kullanabilir. Freezetime içerisinde iken girilen bu komut servera pause attırır. Geri unpause olabilmesi için ilk olarak pause'u olmayan takımın onayı gerekir. Her iki takımda bu komutu kullandığı zaman unpause olur. Bununla birlikte admin istediği şekilde maçı unpause ettirebilir.
+Pause sistemi için admincmd eklentisine bir ekleme yaptım, uyumlu olabilmesi içinde include ile iki sma dosyası birleştirildi. Aynı zamanda pause'da iken say'in sorunsuz akması için gerekli kodlar girildi.
+
+
+
+Ready sistemi; Ready sistemi sadece BO3-BO5 modu için ayarlı, diğer türlü ellen açsanız bile sorunsuz çalışacak diye söz veremem. Birde ek olarak, hangi oyuncunun ready yazmadığını sorgulamak için say_team'den !rsorgula yazılması yeterlidir. Bu komut size hangi oyuncuların !ready yazmadığını yazar.
+
+Respawn; Maç başlayana kadar oyuncular öldükten 1 saniye sonra yeniden doğarlar. Komutla kapatılabilir.
+
+Tüm bunlar yazılırken yapılan değişiklikler;
+Uzatma ayarı; Daha önce paylaştığım maç botunda uzatma ayarı eksikti. Uzatmalarda 4 olan takım direk maçı kazanıyordu. CSM Maç Botu -Ultimate'de ise uzatmalarda 3-3 berabere kalındığında uzatmalar yeniden başlıyor. Bununla birlikte kaç uzatma yapıldı ise o sayı kadar çarpıp maç sonu toplam skoru yazıyor.
+Hud Mesajlar; Ekranda çıkan bütün yazılar beyaz olarak ayarlandı.
+El başı say_team'den paraların gösterilmesi; Evet CSM Maç botunu ilk paylaştığımda oyuncuların el başında kaç parası olduğu say_team'den geçiyordu ve serverda admin listen(Admin tüm yazıları okur) eklentisi varsa adminde görüyordu. CSM Maç Botu -Ultimate'de admin listen eklentisini göz önünde bulundurarak bir güncelleme yaptım. Bundan böyle karşı takımda admin olsa bile sizin say_team'den yazdığınız paraları adminler göremez, sadece kendi takımınız görebilir.
+KFTeleport; KFTeleport'da bazen zamanlama sıkıntısı yaşandığını öğrendim. Yani oyuncu KF için teleport olduğunda kendi doğduğu yere geri dönebiliyordu. CSM Maç Botu -Ultimate'de teleport'u kapatıp spawn olarak değiştirdim. Yani artık KF için koordinatları girilen yere ışınlanmıyor, orada doğuyor.
+Hoşgeldin yazısını vs. gereksiz gördüğüm tüm yazılar silindi.
+Oyuncu maç başladığında hızlı demo al komutunu kullanırsa maç sonunda demo kaydını otomatik olarak bitirir.
+Harita sistemi için maç botuna sıfırlama komutu yazıldı.
